@@ -1,7 +1,8 @@
 use std::char::{is_whitespace, to_digit};
-use std::num;
+use std::cmp::max;
+use std::num::pow;
 
-#[deriving(Clone, Show, Eq)]
+#[deriving(PartialOrd, Clone, Show, Eq)]
 pub struct Numeric {
     value: i64,
     len: uint,
@@ -9,6 +10,15 @@ pub struct Numeric {
 }
 
 impl Numeric {
+    pub fn new(value: i64, len: uint, precision: uint) -> Numeric {
+        // TODO consistency check
+        Numeric {
+            value: value,
+            len: len,
+            precision: precision
+        }
+    }
+
     pub fn from_str(s: &str, len: uint, precision: uint) -> Option<Numeric> {
         let mut s = s.trim_chars(is_whitespace);
         let mut value = 0i64;
@@ -52,22 +62,71 @@ impl Numeric {
         if digits_seen > len - precision || digits_seen_fraction > precision {
             None
         } else {
-            Some(Numeric {
-                value: value * num::pow(10, precision - digits_seen_fraction),
-                len: len,
-                precision: precision,
-            })
+            Some(Numeric::new(value * pow(10, precision - digits_seen_fraction), len, precision))
         }
     }
 }
 
 impl PartialEq for Numeric {
     fn eq(&self, other: &Numeric) -> bool {
-        self.value == other.value &&
-            self.len == other.len &&
-            self.precision == other.precision
+        self.value == other.value
+            && self.precision == other.precision
     }
 }
+
+impl Ord for Numeric {
+    fn cmp(&self, other: &Numeric) -> Ordering {
+        match self.precision.cmp(&other.precision) {
+            Equal => self.value.cmp(&other.value),
+            Less => (self.value * pow(10, other.precision - self.precision)).cmp(&other.value),
+            Greater => (other.value * pow(10, self.precision - other.precision)).cmp(&self.value),
+        }
+    }
+}
+
+impl Add<Numeric, Numeric> for Numeric {
+    fn add(&self, rhs: &Numeric) -> Numeric {
+        Numeric {
+            value: match self.precision.cmp(&rhs.precision) {
+                Equal => self.value + rhs.value,
+                Less => self.value * pow(10, rhs.precision - self.precision) + rhs.value,
+                Greater => rhs.value * pow(10, self.precision - rhs.precision) + self.value,
+            },
+            precision: max(self.precision, rhs.precision),
+            len: max(self.len, rhs.len)
+        }
+    }
+}
+
+impl Sub<Numeric, Numeric> for Numeric {
+    fn sub(&self, rhs: &Numeric) -> Numeric {
+        Numeric {
+            value: match self.precision.cmp(&rhs.precision) {
+                Equal => self.value - rhs.value,
+                Less => self.value * pow(10, rhs.precision - self.precision) - rhs.value,
+                Greater => self.value - rhs.value * pow(10, self.precision - rhs.precision),
+            },
+            precision: max(self.precision, rhs.precision),
+            len: max(self.len, rhs.len)
+        }
+    }
+}
+
+impl Mul<Numeric, Numeric> for Numeric {
+    fn mul(&self, rhs: &Numeric) -> Numeric {
+        Numeric {
+            value: match self.precision.cmp(&rhs.precision) {
+                Equal => self.value * rhs.value,
+                Less => self.value * pow(10, rhs.precision - self.precision) * rhs.value,
+                Greater => self.value * rhs.value * pow(10, self.precision * rhs.precision),
+            },
+            precision: max(self.precision, rhs.precision),
+            len: max(self.len, rhs.len)
+        }
+    }
+}
+
+
 
 #[cfg(test)]
 mod test {

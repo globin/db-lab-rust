@@ -31,6 +31,14 @@ impl<Data: PrimaryKey<Index> + Clone, Index: Eq + Hash> Table<Data, Index> {
         self.index.insert(data.primary_key(), self.rows.len() - 1);
     }
 
+    pub fn lookup(&self, index_elem: Index) -> &Data {
+        &self.rows[self.index[index_elem]]
+    }
+
+    pub fn lookup_mut(&mut self, index_elem: Index) -> &mut Data {
+        self.rows.get_mut(self.index[index_elem])
+    }
+
     pub fn size(&self) -> uint {
         self.rows.len()
     }

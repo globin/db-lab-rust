@@ -12,7 +12,7 @@ pub struct Warehouse {
     w_city: String,
     w_state: String,
     w_zip: String,
-    w_tax: Numeric, // numeric(4, 4)
+    pub w_tax: Numeric, // numeric(4, 4)
     w_ytd: Numeric, // numeric(12, 2)
 }
 
@@ -51,9 +51,9 @@ pub struct District {
     d_city: String,
     d_state: String,
     d_zip: String,
-    d_tax: Numeric, // numeric(4, 4)
+    pub d_tax: Numeric, // numeric(4, 4)
     d_ytd: Numeric, // numeric(12,2)
-    d_next_o_id: i32,
+    pub d_next_o_id: i32,
 }
 
 impl PrimaryKey<(i32, i32)> for District {
@@ -100,7 +100,7 @@ pub struct Customer {
     c_since: i32, // Timestamp
     c_credit: String,
     c_credit_lim: Numeric, // numeric(12,2)
-    c_discount: Numeric, // numeric(4, 4)
+    pub c_discount: Numeric, // numeric(4, 4)
     c_balance: Numeric, // numeric(12,2)
     c_ytd_paymenr: Numeric, // numeric(12,2)
     c_payment_cnt: Numeric, // numeric(4,0)
@@ -147,9 +147,9 @@ pub type  CustomerTable = Table<Customer, (i32, i32, i32)>;
 
 #[deriving(Clone, Show)]
 pub struct Neworder {
-    no_o_id: i32,
-    no_d_id: i32,
-    no_w_id: i32,
+    pub no_o_id: i32,
+    pub no_d_id: i32,
+    pub no_w_id: i32,
 }
 
 impl PrimaryKey<(i32, i32, i32)> for Neworder {
@@ -173,14 +173,14 @@ pub type  NeworderTable = Table<Neworder, (i32, i32, i32)>;
 
 #[deriving(Clone, Show)]
 pub struct Order {
-    o_id: i32,
-    o_d_id: i32,
-    o_w_id: i32,
-    o_c_id: i32,
-    o_entry_d: i32, // Timestamp
-    o_carrier_id: i32,
-    o_ol_cnt: Numeric, // numeric(2,0)
-    o_all_local: Numeric, // numeric(1, 0)
+    pub o_id: i32,
+    pub o_d_id: i32,
+    pub o_w_id: i32,
+    pub o_c_id: i32,
+    pub o_entry_d: i64, // Timestamp
+    pub o_carrier_id: i32,
+    pub o_ol_cnt: Numeric, // numeric(2,0)
+    pub o_all_local: Numeric, // numeric(1, 0)
 }
 
 impl PrimaryKey<(i32, i32, i32)> for Order {
@@ -209,16 +209,16 @@ pub type  OrderTable = Table<Order, (i32, i32, i32)>;
 
 #[deriving(Clone, Show)]
 pub struct Orderline {
-    ol_o_id: i32,
-    ol_d_id: i32,
-    ol_w_id: i32,
-    ol_number: i32,
-    ol_i_id: i32,
-    ol_supply_w_id: i32,
-    ol_delivery_d: i32,
-    ol_quantity: Numeric, // numeric(2,0)
-    ol_amount: Numeric, // numeric(6, 2)
-    ol_dist_info: String,
+    pub ol_o_id: i32,
+    pub ol_d_id: i32,
+    pub ol_w_id: i32,
+    pub ol_number: i32,
+    pub ol_i_id: i32,
+    pub ol_supply_w_id: i32,
+    pub ol_delivery_d: i32,
+    pub ol_quantity: Numeric, // numeric(2,0)
+    pub ol_amount: Numeric, // numeric(6, 2)
+    pub ol_dist_info: String,
 }
 
 impl PrimaryKey<(i32, i32, i32, i32)> for Orderline {
@@ -252,7 +252,7 @@ pub struct Item {
     i_id: i32,
     i_im_id: i32,
     i_name: String,
-    i_price: Numeric, // numeric(5,2)
+    pub i_price: Numeric, // numeric(5,2)
     i_data: String,
 }
 
@@ -279,23 +279,23 @@ pub type  ItemTable = Table<Item, i32>;
 
 #[deriving(Clone, Show)]
 pub struct Stock {
-    s_i_id: i32,
-    s_w_id: i32,
-    s_quantity: Numeric, // numeric(4,0)
-    s_dist_01: String,
-    s_dist_02: String,
-    s_dist_03: String,
-    s_dist_04: String,
-    s_dist_05: String,
-    s_dist_06: String,
-    s_dist_07: String,
-    s_dist_08: String,
-    s_dist_09: String,
-    s_dist_10: String,
-    s_ytd: Numeric, // numeric(8,0)
-    s_order_cnt: Numeric, // numeric(4, 0)
-    s_remote_cnt: Numeric, // numeric(4,0)
-    s_data: String,
+    pub s_i_id: i32,
+    pub s_w_id: i32,
+    pub s_quantity: Numeric, // numeric(4,0)
+    pub s_dist_01: String,
+    pub s_dist_02: String,
+    pub s_dist_03: String,
+    pub s_dist_04: String,
+    pub s_dist_05: String,
+    pub s_dist_06: String,
+    pub s_dist_07: String,
+    pub s_dist_08: String,
+    pub s_dist_09: String,
+    pub s_dist_10: String,
+    pub s_ytd: Numeric, // numeric(8,0)
+    pub s_order_cnt: Numeric, // numeric(4, 0)
+    pub s_remote_cnt: Numeric, // numeric(4,0)
+    pub s_data: String,
 }
 
 impl PrimaryKey<(i32, i32)> for Stock {
