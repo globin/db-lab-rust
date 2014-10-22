@@ -255,12 +255,139 @@ impl FromRow for Order {
 type OrderTable = Table<Order, (i32, i32, i32)>;
 
 
+#[deriving(Clone, Show)]
+struct Orderline {
+    ol_o_id: i32,
+    ol_d_id: i32,
+    ol_w_id: i32,
+    ol_number: i32,
+    ol_i_id: i32,
+    ol_supply_w_id: i32,
+    ol_delivery_d: i32,
+    ol_quantity: Numeric, // numeric(2,0)
+    ol_amount: Numeric, // numeric(6, 2)
+    ol_dist_info: String,
+}
+
+impl PrimaryKey<(i32, i32, i32, i32)> for Orderline {
+    fn primary_key(&self) -> (i32, i32, i32, i32) {
+        (self.ol_w_id, self.ol_d_id, self.ol_o_id, self.ol_number)
+    }
+}
+
+impl FromRow for Orderline {
+    fn from_row(mut row: CharSplits<char>) -> Orderline {
+        Orderline {
+            ol_o_id: from_str(row.next().unwrap()).unwrap(),
+            ol_d_id: from_str(row.next().unwrap()).unwrap(),
+            ol_w_id: from_str(row.next().unwrap()).unwrap(),
+            ol_number: from_str(row.next().unwrap()).unwrap(),
+            ol_i_id: from_str(row.next().unwrap()).unwrap(),
+            ol_supply_w_id: from_str(row.next().unwrap()).unwrap(),
+            ol_delivery_d: from_str(row.next().unwrap()).unwrap(),
+            ol_quantity: Numeric::from_str(row.next().unwrap(), 2, 0).unwrap(),
+            ol_amount: Numeric::from_str(row.next().unwrap(), 6, 2).unwrap(),
+            ol_dist_info: row.next().unwrap().into_string(),
+        }
+    }
+}
+
+type OrderlineTable = Table<Orderline, (i32, i32, i32, i32)>;
+
+
+#[deriving(Clone, Show)]
+struct Item {
+    i_id: i32,
+    i_im_id: i32,
+    i_name: String,
+    i_price: Numeric, // numeric(5,2)
+    i_data: String,
+}
+
+impl PrimaryKey<i32> for Item {
+    fn primary_key(&self) -> i32 {
+        self.i_id
+    }
+}
+
+impl FromRow for Item {
+    fn from_row(mut row: CharSplits<char>) -> Item {
+        Item {
+            i_id: from_str(row.next().unwrap()).unwrap(),
+            i_im_id: from_str(row.next().unwrap()).unwrap(),
+            i_name: row.next().unwrap().into_string(),
+            i_price: Numeric::from_str(row.next().unwrap(), 5, 2).unwrap(),
+            i_data: row.next().unwrap().into_string(),
+        }
+    }
+}
+
+type ItemTable = Table<Item, i32>;
+
+
+#[deriving(Clone, Show)]
+struct Stock {
+    s_i_id: i32,
+    s_w_id: i32,
+    s_quantity: Numeric, // numeric(4,0)
+    s_dist_01: String,
+    s_dist_02: String,
+    s_dist_03: String,
+    s_dist_04: String,
+    s_dist_05: String,
+    s_dist_06: String,
+    s_dist_07: String,
+    s_dist_08: String,
+    s_dist_09: String,
+    s_dist_10: String,
+    s_ytd: Numeric, // numeric(8,0)
+    s_order_cnt: Numeric, // numeric(4, 0)
+    s_remote_cnt: Numeric, // numeric(4,0)
+    s_data: String,
+}
+
+impl PrimaryKey<(i32, i32)> for Stock {
+    fn primary_key(&self) -> (i32, i32) {
+        (self.s_w_id, self.s_i_id)
+    }
+}
+
+impl FromRow for Stock {
+    fn from_row(mut row: CharSplits<char>) -> Stock {
+        Stock {
+            s_i_id: from_str(row.next().unwrap()).unwrap(),
+            s_w_id: from_str(row.next().unwrap()).unwrap(),
+            s_quantity: Numeric::from_str(row.next().unwrap(), 4, 0).unwrap(),
+            s_dist_01: row.next().unwrap().into_string(),
+            s_dist_02: row.next().unwrap().into_string(),
+            s_dist_03: row.next().unwrap().into_string(),
+            s_dist_04: row.next().unwrap().into_string(),
+            s_dist_05: row.next().unwrap().into_string(),
+            s_dist_06: row.next().unwrap().into_string(),
+            s_dist_07: row.next().unwrap().into_string(),
+            s_dist_08: row.next().unwrap().into_string(),
+            s_dist_09: row.next().unwrap().into_string(),
+            s_dist_10: row.next().unwrap().into_string(),
+            s_ytd: Numeric::from_str(row.next().unwrap(), 8, 0).unwrap(),
+            s_order_cnt: Numeric::from_str(row.next().unwrap(), 4, 0).unwrap(),
+            s_remote_cnt: Numeric::from_str(row.next().unwrap(), 4, 0).unwrap(),
+            s_data: row.next().unwrap().into_string(),
+        }
+    }
+}
+
+type StockTable = Table<Stock, (i32, i32)>;
+
+
 struct Tables {
     warehouse_table: WarehouseTable,
     district_table: DistrictTable,
     customer_table: CustomerTable,
     neworder_table: NeworderTable,
     order_table: OrderTable,
+    orderline_table: OrderlineTable,
+    item_table: ItemTable,
+    stock_table: StockTable,
 }
 
 impl Tables {
@@ -271,6 +398,9 @@ impl Tables {
             customer_table: Table::new(),
             neworder_table: Table::new(),
             order_table: Table::new(),
+            orderline_table: Table::new(),
+            item_table: Table::new(),
+            stock_table: Table::new(),
         }
     }
 }
@@ -291,6 +421,9 @@ fn read_tables(tables: &mut Tables) {
     read_table::<Customer, (i32, i32, i32)>("../data/tpcc_customer.tbl", &mut tables.customer_table);
     read_table::<Neworder, (i32, i32, i32)>("../data/tpcc_neworder.tbl", &mut tables.neworder_table);
     read_table::<Order, (i32, i32, i32)>("../data/tpcc_order.tbl", &mut tables.order_table);
+    read_table::<Orderline, (i32, i32, i32, i32)>("../data/tpcc_orderline.tbl", &mut tables.orderline_table);
+    read_table::<Item, i32>("../data/tpcc_item.tbl", &mut tables.item_table);
+    read_table::<Stock, (i32, i32)>("../data/tpcc_stock.tbl", &mut tables.stock_table);
 }
 
 fn main() {
@@ -303,6 +436,9 @@ fn main() {
     println!("Customer: {}", tables.customer_table.size());
     println!("Neworder: {}", tables.neworder_table.size());
     println!("Order: {}", tables.order_table.size());
+    println!("Orderline: {}", tables.orderline_table.size());
+    println!("Item: {}", tables.item_table.size());
+    println!("Stock: {}", tables.stock_table.size());
 
     println!("insert {}s", ((precise_time_ns() - time) as f64) / 1e9f64);
 }
