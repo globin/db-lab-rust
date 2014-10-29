@@ -1,4 +1,11 @@
 [root]
 name = "rust-code"
 version = "0.0.1"
+dependencies = [
+ "sql_generator 0.0.1",
+]
+
+[[package]]
+name = "sql_generator"
+version = "0.0.1"
 

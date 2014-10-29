@@ -1,0 +1,9 @@
+[package]
+name = "sql_generator"
+version = "0.0.1"
+authors = ["Robin Gloster <robin@loc-com.de>"]
+
+[[lib]]
+name = "sql_generator"
+plugin = true
+crate-type = ["dylib"]
